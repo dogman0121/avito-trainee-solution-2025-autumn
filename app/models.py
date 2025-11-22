@@ -10,7 +10,7 @@ class PULLREQUEST_STATUS(enum.Enum):
     MERGED = "MERGED"
     OPEN = "OPEN"
 
-class User(db.Model):
+class UserModel(db.Model):
     __tablename__ = "users"
 
     user_id: Mapped[str] = mapped_column(primary_key=True)
@@ -20,7 +20,7 @@ class User(db.Model):
 
     team: Mapped["Team"] = relationship(back_populates="members")
 
-class Team(db.Model):
+class TeamModel(db.Model):
     __tablename__ = "teams"
 
     team_name: Mapped[str] = mapped_column(primary_key=True)
@@ -34,7 +34,7 @@ assigned_users_table = Table(
     Column("pull_request_id", ForeignKey("pull_requests.pull_request_id"))
 )
 
-class PullRequest(db.Model):
+class PullRequestModel(db.Model):
     __tablename__ = "pull_requests"
 
     pull_request_id: Mapped[str] = mapped_column(primary_key=True)

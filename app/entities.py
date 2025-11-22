@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 from app.models import PULLREQUEST_STATUS
@@ -23,4 +23,4 @@ class PullRequest:
     author: User
     assigned_reviewers: List[User]
     created_at: datetime
-    merged_at: datetime
+    merged_at: Optional[datetime]
