@@ -22,14 +22,16 @@ from app.exceptions import (
     PullRequestNotFound,
     PullRequestMergedException,
     PullRequestNoCandidatesException,
-    PullRequestUserNotReviewerException
+    PullRequestUserNotReviewerException,
+    TeamAlreadyExistsException
 )
 from app.utils import (
     create_not_found_response, 
     create_pr_exists_response,
     create_pr_merged_response,
     create_pr_no_candidates_response,
-    create_pr_user_not_reviewer_response
+    create_pr_user_not_reviewer_response,
+    create_team_exists_response
 )
 from app.models import PULLREQUEST_STATUS
 
@@ -41,34 +43,36 @@ def health_check():
 
 @bp.route("/team/add", methods=["POST"])
 def create_team_route():
-    create_schema = TeamCreateSchema()
+    try:
+        create_schema = TeamCreateSchema()
 
-    create_data = create_schema.load(request.json)
+        create_data = create_schema.load(request.json)
 
-    team_members = []
+        team_members = []
 
-    for i in create_data.get("members"):
-        member = User(
-            user_id=i.get("user_id"),
-            username=i.get("username"),
-            is_active=i.get("is_active")
+        for i in create_data.get("members"):
+            member = User(
+                user_id=i.get("user_id"),
+                username=i.get("username"),
+                is_active=i.get("is_active")
+            )
+
+            team_members.append(member)
+
+        team_data = Team(
+            team_name=create_data.get("team_name"),
+            members=team_members
         )
 
-        team_members.append(member)
+        team = TeamService().create_team(team_data)
 
-    team_data = Team(
-        team_name=create_data.get("team_name"),
-        members=team_members
-    )
+        get_schema = TeamSchema()
 
-    team = TeamService().create_team(team_data)
-
-    get_schema = TeamSchema()
-
-    return jsonify({
-        "team": get_schema.dump(team)
-    })
-
+        return jsonify({
+            "team": get_schema.dump(team)
+        }), 201
+    except TeamAlreadyExistsException:
+        return create_team_exists_response()
 
 @bp.route("/team/get", methods=["GET"])
 def get_team_route():
