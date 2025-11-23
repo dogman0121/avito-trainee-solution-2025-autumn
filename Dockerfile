@@ -1,17 +1,18 @@
 FROM python:3.14-slim
 
+ENV POETRY_VERSION=2.2.1
+
+RUN pip install poetry==${POETRY_VERSION} gunicorn
+
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock* ./
+COPY poetry.lock pyproject.toml /app/
 
-RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root
 
-RUN poetry install
-
-RUN pip install gunicorn
-
-COPY . .
+COPY . /app
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:create_app()"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:create_app()"]

@@ -6,7 +6,7 @@ authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 dependencies = [
     "sqlalchemy (>=2.0.44,<3.0.0)",
     "flask (>=3.1.2,<4.0.0)",
