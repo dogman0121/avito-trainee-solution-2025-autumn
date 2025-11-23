@@ -21,6 +21,11 @@ services:
     container_name: app
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://root:12345678@postgres:5432/prod
+      - SECRET_KEY=z(wq)!bX63%~k*hR
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s

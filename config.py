@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 class Config:
-    SECRET_KEY="z(wq)!bX63%~k*hR"
-    SQLALCHEMY_DATABASE_URI="postgresql://root:12345678@localhost/prod"
+    SECRET_KEY=os.environ.get("SECRET_KEY")
+    SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL")
