@@ -22,7 +22,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://root:12345678@postgres:5432/prod
       - SECRET_KEY=z(wq)!bX63%~k*hR
