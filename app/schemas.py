@@ -1,5 +1,7 @@
 from marshmallow import Schema, fields
 
+from app.models import PULLREQUEST_STATUS
+
 
 class TeamMemberSchema(Schema):
     user_id = fields.String()
@@ -15,7 +17,10 @@ class TeamCreateSchema(Schema):
     members = fields.List(fields.Nested(TeamMemberSchema))
 
 class UserSchema(Schema):
-    pass
+    user_id = fields.String()
+    username = fields.String()
+    is_active = fields.Boolean()
+    team_name = fields.String()
 
 class UserActivitySchema(Schema):
     user_id = fields.String()
@@ -34,7 +39,17 @@ class PullRequestReassignSchema(Schema):
     old_reviewer_id = fields.String()
 
 class PullRequestSchema(Schema):
-    pass
+    pull_request_id = fields.String()
+    pull_request_name = fields.String()
+    status = fields.Enum(PULLREQUEST_STATUS, by_value=True)
+    author_id = fields.Method("get_author_id")
+    assigned_reviewers = fields.Method("get_assigned_reviewers")
+
+    def get_author_id(self, obj):
+        return obj.author.user_id
+    
+    def get_assigned_reviewers(self, obj):
+        return [i.user_id for i in obj.assigned_reviewers]
 
 class PullRequestShortSchema(Schema):
     pass

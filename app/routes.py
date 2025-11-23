@@ -4,6 +4,7 @@ from datetime import datetime
 
 from app.schemas import (
     TeamSchema, 
+    TeamCreateSchema,
     UserActivitySchema, 
     UserSchema, 
     PullRequestShortSchema,
@@ -34,10 +35,13 @@ from app.models import PULLREQUEST_STATUS
 
 bp = Blueprint("main", __name__)
 
+@bp.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'ok'}), 200
 
 @bp.route("/team/add", methods=["POST"])
 def create_team_route():
-    create_schema = TeamSchema()
+    create_schema = TeamCreateSchema()
 
     create_data = create_schema.load(request.json)
 
@@ -53,8 +57,8 @@ def create_team_route():
         team_members.append(member)
 
     team_data = Team(
-        team_name=team_data.get("team_name"),
-        members=member
+        team_name=create_data.get("team_name"),
+        members=team_members
     )
 
     team = TeamService().create_team(team_data)
@@ -108,11 +112,11 @@ def set_user_active_route():
 @bp.route("/users/getReview", methods=["GET"])
 def get_user_reviews_route():
     try:
-        user_id = request.get("user_id")
+        user_id = request.args.get("user_id")
 
         user = UserService().get_user_by_id(user_id)
 
-        pull_requests = UserService().get_pull_requests(user)
+        pull_requests = PullRequestService().get_user_pull_requests(user)
 
         get_pull_requests_schema = PullRequestShortSchema()
 
@@ -124,7 +128,7 @@ def get_user_reviews_route():
         return create_not_found_response()
 
 
-@bp.route("/pullRequests/create", methods=["POST"])
+@bp.route("/pullRequest/create", methods=["POST"])
 def create_pull_request_route():
     try:
         create_schema = PullRequestCreateSchema()
@@ -141,7 +145,9 @@ def create_pull_request_route():
             pull_request_name=pull_request_name,
             author=author,
             status=PULLREQUEST_STATUS.OPEN,
-            created_at=datetime.now()
+            created_at=datetime.now(),
+            assigned_reviewers=[],
+            merged_at=None
         )
 
         pull_request = PullRequestService().create_pull_request(pull_request_data)
@@ -157,7 +163,7 @@ def create_pull_request_route():
         return create_pr_exists_response()
     
 
-@bp.route("/pullRequests/merge", methods=["POST"])
+@bp.route("/pullRequest/merge", methods=["POST"])
 def merge_pull_requests_route():
     try:
         pr_merge_schema = PullRequestMergeSchema()
@@ -178,7 +184,7 @@ def merge_pull_requests_route():
     except PullRequestNotFound:
         return create_not_found_response()
 
-@bp.route("/pullRequests/reassign", methods=["POST"])
+@bp.route("/pullRequest/reassign", methods=["POST"])
 def reassign_pull_requests_route():
     try:
         pr_reassign_schema = PullRequestReassignSchema()
