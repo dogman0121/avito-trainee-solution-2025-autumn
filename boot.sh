@@ -7,4 +7,4 @@ while true; do
     echo Deploy command failed, retrying in 5 secs...
     sleep 5
 done
-exec gunicorn --bind :8080 manage:app
+exec gunicorn --bind :8080 app.main:app

@@ -13,6 +13,8 @@ RUN poetry config virtualenvs.create false \
 
 COPY . /app
 
+RUN chmod a+x boot.sh
+
 EXPOSE 8080
 
 ENTRYPOINT ["./boot.sh"]
